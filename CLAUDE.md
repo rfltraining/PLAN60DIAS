@@ -14,35 +14,30 @@ El archivo `plan.html` vive en el repo separado **rfltraining/plataforma** como 
 
 ## Deploy a GitHub
 
-**Git no está instalado** en este Mac (requiere Xcode Command Line Tools). Todo el deploy se hace via GitHub REST API con `curl`.
+Git instalado (Apple Git 2.50.1). Repos clonados en el Desktop.
 
 Usuario GitHub: `rfltraining`  
 Token: guardado por el usuario — pedirlo si no está disponible.
 
-### Subir/actualizar un archivo
+### Repos locales
+
+- `/Users/adrianlopezgmail.com/Desktop/PLAN60DIAS` → `github.com/rfltraining/PLAN60DIAS`
+- `/Users/adrianlopezgmail.com/Desktop/plataforma` → `github.com/rfltraining/plataforma`
+
+### Workflow normal
 
 ```bash
-# 1. Obtener SHA del archivo actual (necesario para updates)
-SHA=$(curl -s -H "Authorization: token TOKEN" \
-  "https://api.github.com/repos/rfltraining/PLAN60DIAS/contents/index.html" \
-  | grep '"sha"' | head -1 | sed 's/.*"sha": "\([^"]*\)".*/\1/')
-
-# 2. Encodear y subir (usar archivo temp para evitar "argument list too long")
-CONTENT=$(base64 -i index.html | tr -d '\n')
-printf '{"message":"Update index.html","sha":"%s","content":"%s"}' "$SHA" "$CONTENT" > /tmp/upload.json
-curl -s -X PUT \
-  -H "Authorization: token TOKEN" \
-  -H "Content-Type: application/json" \
-  -d @/tmp/upload.json \
-  "https://api.github.com/repos/rfltraining/PLAN60DIAS/contents/index.html"
-rm /tmp/upload.json
+# En el repo correspondiente:
+git add archivo.html
+git commit -m "descripción"
+git push origin main
 ```
 
-Para **nuevo archivo** (sin `sha`) o repo **plataforma**, cambiar la URL y omitir el campo `sha`.
+### Configurar token (si git push falla por auth)
 
-### No hacer deletes en paralelo
-
-Borrar dos archivos del mismo repo simultáneamente causa conflicto de SHA. Hacerlos secuencialmente.
+```bash
+git remote set-url origin https://TOKEN@github.com/rfltraining/REPO.git
+```
 
 ## Estilo CSS
 
